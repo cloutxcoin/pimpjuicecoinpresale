@@ -1,4 +1,4 @@
-
+import * as web3 from '@solana/web3.js'
 import { useEffect, useState } from 'react'
 import * as web3 from '@solana/web3.js'
 import './App.css'
@@ -73,6 +73,7 @@ function App() {
         placeholder="Enter amount in SOL"
       />
       <button onClick={sendSol}>Buy $PIMPJUICE</button>
+      <button onClick={() => alert("Buy button pressed")}>TEST BUTTON</button>
       <a href="https://x.com/PIMPJUICECOIN" target="_blank" rel="noreferrer">Follow @PIMPJUICECOIN</a>
     </div>
   )
