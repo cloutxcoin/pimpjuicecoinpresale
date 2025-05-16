@@ -1,13 +1,104 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>$PIMPJUICE Presale</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>$PIMPJUICE Presale</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+  <style>
+    body {
+      background-color: black;
+      color: lime;
+      font-family: monospace;
+      text-align: center;
+      padding: 40px;
+    }
+    .logo {
+      max-width: 180px;
+      margin-bottom: 30px;
+    }
+    .button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: lime;
+      color: black;
+      border: none;
+      cursor: pointer;
+      margin: 10px;
+    }
+    .input {
+      font-size: 16px;
+      padding: 10px;
+      width: 200px;
+      background-color: #111;
+      color: lime;
+      border: 1px solid lime;
+      margin-top: 20px;
+    }
+    .note {
+      margin-top: 20px;
+    }
+    a.twitter {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: lime;
+      color: black;
+      text-decoration: none;
+      font-weight: bold;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <img src="pimpjuice_logo.png" alt="$PIMPJUICE Logo" class="logo" />
+  <h1>$PIMPJUICE Presale</h1>
+  <p>1 SOL = 100,000 $PIMPJUICE</p>
+  <p class="note">Minimum purchase: 0.1 SOL</p>
+  <p id="wallet-status">Wallet Not Connected</p>
+  <button class="button" onclick="connectWallet()">Connect Wallet</button>
+  <br>
+  <button class="button" onclick="sendSol()">Buy $PIMPJUICE</button>
+  <br><br>
+  <a href="https://x.com/PIMPJUICECOIN" target="_blank" class="twitter">Follow @PIMPJUICECOIN on Twitter</a>
+
+  <script>
+    let provider = null;
+    window.onload = () => {
+      if ("solana" in window) {
+        provider = window.solana;
+        provider.connect({ onlyIfTrusted: true });
+      }
+    };
+    async function connectWallet() {
+      try {
+        const resp = await provider.connect();
+        document.getElementById("wallet-status").textContent = 'Wallet Connected: ' + resp.publicKey.toString();
+      } catch (err) {
+        alert('Wallet connection failed');
+      }
+    }
+    async function sendSol() {
+      try {
+        const connection = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com", "confirmed");
+        const receiverWallet = new solanaWeb3.PublicKey("3sJmHVLCz67EQn8GwZufDkkyyDVXyjSMk1hLD8SBVzd4");
+        const transaction = new solanaWeb3.Transaction().add(
+          solanaWeb3.SystemProgram.transfer({
+            fromPubkey: provider.publicKey,
+            toPubkey: receiverWallet,
+            lamports: solanaWeb3.LAMPORTS_PER_SOL * 0.1,
+          })
+        );
+        transaction.feePayer = provider.publicKey;
+        const blockhashObj = await connection.getLatestBlockhash();
+        transaction.recentBlockhash = blockhashObj.blockhash;
+        const signed = await provider.signAndSendTransaction(transaction);
+        await connection.confirmTransaction(signed.signature);
+        alert("Purchase Complete! Tx ID: " + signed.signature);
+      } catch (error) {
+        alert("Transaction Failed: " + error.message);
+      }
+    }
+  </script>
+</body>
 </html>
