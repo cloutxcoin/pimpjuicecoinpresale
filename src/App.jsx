@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react'
+import * as web3 from '@solana/web3.js'
 import './App.css'
 
 function App() {
@@ -25,32 +26,27 @@ function App() {
   }
 
   const sendSol = async () => {
-    if (!connected || !provider?.publicKey) {
-      alert('Wallet not connected.')
+    const lamports = parseFloat(amount) * web3.LAMPORTS_PER_SOL
+    if (!connected || !provider?.publicKey || parseFloat(amount) < 0.1) {
+      alert('Connect your wallet and enter at least 0.1 SOL')
       return
     }
 
-    const inputAmount = parseFloat(amount)
-    if (isNaN(inputAmount) || inputAmount < 0.1) {
-      alert("Minimum buy is 0.1 SOL")
-      return
-    }
+    const connection = new web3.Connection('https://api.mainnet-beta.solana.com', 'confirmed')
+    const toPubkey = new web3.PublicKey('3sJmHVLCz67EQn8GwZufDkkyyDVXyjSMk1hLD8SBVzd4')
+    const transaction = new web3.Transaction().add(
+      web3.SystemProgram.transfer({
+        fromPubkey: provider.publicKey,
+        toPubkey,
+        lamports
+      })
+    )
+
+    transaction.feePayer = provider.publicKey
+    const blockhashObj = await connection.getLatestBlockhash()
+    transaction.recentBlockhash = blockhashObj.blockhash
 
     try {
-      const connection = new window.solanaWeb3.Connection('https://api.mainnet-beta.solana.com')
-      const toPubkey = new window.solanaWeb3.PublicKey('3sJmHVLCz67EQn8GwZufDkkyyDVXyjSMk1hLD8SBVzd4')
-      const transaction = new window.solanaWeb3.Transaction().add(
-        window.solanaWeb3.SystemProgram.transfer({
-          fromPubkey: provider.publicKey,
-          toPubkey,
-          lamports: window.solanaWeb3.LAMPORTS_PER_SOL * inputAmount
-        })
-      )
-
-      transaction.feePayer = provider.publicKey
-      const blockhashObj = await connection.getLatestBlockhash()
-      transaction.recentBlockhash = blockhashObj.blockhash
-
       const signed = await provider.signAndSendTransaction(transaction)
       await connection.confirmTransaction(signed.signature, 'confirmed')
       alert('✅ Transaction Confirmed!\nTx ID: ' + signed.signature)
