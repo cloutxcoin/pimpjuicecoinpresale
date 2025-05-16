@@ -1,0 +1,48 @@
+
+body {
+  margin: 0;
+  background-color: black;
+  color: lime;
+  font-family: monospace;
+}
+
+.container {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.logo {
+  max-width: 180px;
+  margin-bottom: 30px;
+}
+
+.input {
+  margin-top: 20px;
+  padding: 10px;
+  font-size: 16px;
+  width: 220px;
+  background: #111;
+  color: lime;
+  border: 1px solid lime;
+}
+
+.button {
+  margin-top: 20px;
+  padding: 12px 24px;
+  font-size: 16px;
+  background-color: lime;
+  color: black;
+  border: none;
+  cursor: pointer;
+}
+
+.twitter {
+  display: inline-block;
+  margin-top: 40px;
+  padding: 10px 20px;
+  background-color: lime;
+  color: black;
+  text-decoration: none;
+  font-weight: bold;
+  font-family: monospace;
+}
