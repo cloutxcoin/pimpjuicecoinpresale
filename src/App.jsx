@@ -25,32 +25,38 @@ function App() {
   }
 
   const sendSol = async () => {
-    const lamports = parseFloat(amount) * 1000000000
-    if (!connected || !provider?.publicKey || parseFloat(amount) < 0.1) {
-      alert('Connect your wallet and enter at least 0.1 SOL')
+    if (!connected || !provider?.publicKey) {
+      alert('Wallet not connected.')
       return
     }
 
-    const connection = new window.solanaWeb3.Connection('https://api.mainnet-beta.solana.com')
-    const toPubkey = new window.solanaWeb3.PublicKey('3sJmHVLCz67EQn8GwZufDkkyyDVXyjSMk1hLD8SBVzd4')
-    const transaction = new window.solanaWeb3.Transaction().add(
-      window.solanaWeb3.SystemProgram.transfer({
-        fromPubkey: provider.publicKey,
-        toPubkey,
-        lamports
-      })
-    )
-
-    transaction.feePayer = provider.publicKey
-    const blockhashObj = await connection.getLatestBlockhash()
-    transaction.recentBlockhash = blockhashObj.blockhash
+    const inputAmount = parseFloat(amount)
+    if (isNaN(inputAmount) || inputAmount < 0.1) {
+      alert("Minimum buy is 0.1 SOL")
+      return
+    }
 
     try {
+      const connection = new window.solanaWeb3.Connection('https://api.mainnet-beta.solana.com')
+      const toPubkey = new window.solanaWeb3.PublicKey('3sJmHVLCz67EQn8GwZufDkkyyDVXyjSMk1hLD8SBVzd4')
+      const transaction = new window.solanaWeb3.Transaction().add(
+        window.solanaWeb3.SystemProgram.transfer({
+          fromPubkey: provider.publicKey,
+          toPubkey,
+          lamports: window.solanaWeb3.LAMPORTS_PER_SOL * inputAmount
+        })
+      )
+
+      transaction.feePayer = provider.publicKey
+      const blockhashObj = await connection.getLatestBlockhash()
+      transaction.recentBlockhash = blockhashObj.blockhash
+
       const signed = await provider.signAndSendTransaction(transaction)
-      await connection.confirmTransaction(signed.signature)
-      alert('Transaction confirmed!\nTx ID: ' + signed.signature)
+      await connection.confirmTransaction(signed.signature, 'confirmed')
+      alert('✅ Transaction Confirmed!\nTx ID: ' + signed.signature)
     } catch (err) {
-      alert('Transaction Failed: ' + (err.message || err))
+      console.error(err)
+      alert('❌ Transaction Failed: ' + (err.message || err))
     }
   }
 
