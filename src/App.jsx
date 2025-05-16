@@ -1,6 +1,5 @@
 import * as web3 from '@solana/web3.js'
 import { useEffect, useState } from 'react'
-import * as web3 from '@solana/web3.js'
 import './App.css'
 
 function App() {
